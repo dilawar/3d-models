@@ -1,0 +1,68 @@
+# openscad.nvim — generated justfile
+# Usage with overseer.nvim : :OverseerRun
+# Usage from terminal      : just stl
+# Override source file     : just stl src=other_model
+
+src := "leg"
+
+# OpenSCAD binary (auto-detected by OS)
+openscad := if os() == "macos" { "/Applications/OpenSCAD.app/Contents/MacOS/OpenSCAD" } else { "openscad" }
+
+# PNG options
+imgsize     := "1920x1080"
+colorscheme := "Cornfield"
+
+# ── 3D formats ────────────────────────────────────────────────────────────────
+
+stl:
+    {{openscad}} -o {{src}}.stl {{src}}.scad
+
+stl-ascii:
+    {{openscad}} --export-format asciistl -o {{src}}.stl {{src}}.scad
+
+stl-binary:
+    {{openscad}} --export-format binstl -o {{src}}.stl {{src}}.scad
+
+off:
+    {{openscad}} -o {{src}}.off {{src}}.scad
+
+amf:
+    {{openscad}} -o {{src}}.amf {{src}}.scad
+
+# threemf (.3mf) - 3D Manufacturing Format
+threemf:
+    {{openscad}} -o {{src}}.3mf {{src}}.scad
+
+csg:
+    {{openscad}} -o {{src}}.csg {{src}}.scad
+
+# ── 2D formats ────────────────────────────────────────────────────────────────
+
+svg:
+    {{openscad}} -o {{src}}.svg {{src}}.scad
+
+dxf:
+    {{openscad}} -o {{src}}.dxf {{src}}.scad
+
+pdf:
+    {{openscad}} -o {{src}}.pdf {{src}}.scad
+
+# ── Image ─────────────────────────────────────────────────────────────────────
+
+# Full render (slow, accurate)
+png:
+    {{openscad}} --render --imgsize={{imgsize}} --autocenter --viewall \
+        --colorscheme={{colorscheme}} -o {{src}}.png {{src}}.scad
+
+# Fast preview render (thrown-together)
+png-preview:
+    {{openscad}} --preview=throwntogether --imgsize={{imgsize}} --autocenter --viewall \
+        --colorscheme={{colorscheme}} -o {{src}}.png {{src}}.scad
+
+# ── Bundles ───────────────────────────────────────────────────────────────────
+
+all-3d: stl off amf threemf
+
+all-2d: svg dxf pdf
+
+all: all-3d all-2d png
